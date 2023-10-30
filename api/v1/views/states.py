@@ -10,7 +10,7 @@ from models.state import State
 
 
 @app_views.route('/states')
-@app_views.route('/states/<state_id>')
+@app_views.route('/states/<state_id>', methods=['GET'])
 def states(state_id=None):
     """ Returns a JSON response to an HTTP request"""
     states_list = []
