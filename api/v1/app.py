@@ -1,26 +1,35 @@
 #!/usr/bin/python3
-""" Module for app.py and its routes"""
-from flask import Flask
+"""
+Contains the FileStorage class
+"""
+from flask import Flask, jsonify
 from models import storage
 from api.v1.views import app_views
-import os
-
-
+from os import getenv
+from flask_cors import CORS
 app = Flask(__name__)
-app.url_map.strict_slashes = False
-
-HBNB_API_HOST = os.environ.get('HBNB_API_HOST', '0.0.0.0')
-HBNB_API_PORT = os.environ.get('HBNB_API_PORT', '5000')
-
 app.register_blueprint(app_views)
+cors = CORS(app, resources={r"/*": {"origins": "0.0.0.0"}})
 
 
 @app.teardown_appcontext
-def teardown_appcontext(error):
-    """Closes storage session after each request"""
+def teardown_db(exception):
+    """Remove the current SQLAlchemy session"""
     storage.close()
 
 
+@app.errorhandler(404)
+def not_found(error):
+    """Returns a error 404"""
+    return jsonify({'error': 'Not found'}), 404
+
 if __name__ == "__main__":
-    app.run(host=HBNB_API_HOST, port=int(HBNB_API_PORT),
-            threaded=True)
+    if getenv('HBNB_API_HOST'):
+        host = getenv('HBNB_API_HOST')
+    else:
+        host = '0.0.0.0'
+    if getenv('HBNB_API_PORT'):
+        port = getenv('HBNB_API_PORT')
+    else:
+        port = 5000
+    app.run(host=host, port=port, threaded=True)
