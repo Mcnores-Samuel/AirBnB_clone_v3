@@ -41,5 +41,54 @@ def all_city_objs(state_id=None, city_id=None):
     return jsonify(cities_list)
 
 
-# @app_views.route('/cities/<city_id>', methods=['DELETE'])
-# def delete_city_o
+@app_views.route('/cities/<city_id>', methods=['DELETE'])
+def delete_city_obj(city_id=None):
+    """ Deletes a city object for a given city id"""
+    if city_id:
+        cities = storage.all(City)
+        for city in cities.values():
+            if city.id == city_id:
+                storage.delete(city)
+                storage.save()
+                return jsonify({}), 200
+    return jsonify({"error": "Not found"}), 404
+
+
+@app_views.route('/states/<state_id>/cities', methods=['POST'])
+def create_city_obj(state_id=None):
+    """ Creates a city object and returns a JSON response to an HTTP request"""
+    if state_id:
+        if request.is_json:
+            city_json = request.get_json()
+            if "name" in city_json:
+                new_city = City(**city_json)
+                new_city.state_id = state_id
+                new_city.save()
+                return jsonify(new_city.to_dict()), 201
+            else:
+                return jsonify({"error": "Missing name"}), 400
+        else:
+            return jsonify({"error": "Not a JSON"}), 400
+    else:
+        return jsonify({"error": "Not found"}), 404
+
+
+@app_views.route('/cities/<city_id>', methods=['PUT'])
+def update_city_obj(city_id=None):
+    """Updates a city object for a given city id and returns a JSON response"""
+    if city_id:
+        if request.is_json:
+            city_json = request.get_json()
+            cities = storage.all(City)
+            for city in cities.values():
+                if city.id == city_id:
+                    for key, value in city_json.items():
+                        if key not in ["id", "created_at", "updated_at"]:
+                            setattr(city, key, value)
+                    city.save()
+                    return jsonify(city.to_dict()), 200
+            return jsonify({"error": "Not found"}), 404
+        else:
+            return jsonify({"error": "Not a JSON"}), 400
+    else:
+        return jsonify({"error": "Not found"}), 404
