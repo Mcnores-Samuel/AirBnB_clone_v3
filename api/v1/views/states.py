@@ -2,6 +2,12 @@
 """ Module for index route of the api to handle index requests
 This module handles the HTTP requests that are sent to the api
 for getting the states objects from the storage engine
+
+Methods:
+    all_state_objs - Returns a JSON response to an HTTP request
+    delete_state_obj - Deletes a state object for a given state id
+    create_state_obj - Creates a state object
+    update_state_obj - Updates a state object for a given state id
 """
 from api.v1.views import app_views
 from flask import jsonify
