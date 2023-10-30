@@ -17,16 +17,17 @@ from flask import request
 
 
 @app_views.route('/states/<state_id>/cities')
-@app_views.route('/states/<state_id>/cities/<city_id>', methods=['GET'])
+@app_views.route('/cities/<city_id>', methods=['GET'])
 def all_city_objs(state_id=None, city_id=None):
     """ Returns a JSON response to an HTTP request"""
     cities_list = []
-    if state_id and city_id:
+    if city_id:
         cities = storage.all(City)
         for city in cities.values():
-            if city.id == city_id and city.state_id == state_id:
+            if city.id == city_id:
                 cities_list.append(city.to_dict())
                 break
+
     elif state_id:
         cities = storage.all(City)
         for city in cities.values():
@@ -60,13 +61,15 @@ def create_city_obj(state_id=None):
     if state_id:
         if request.is_json:
             city_json = request.get_json()
-            if "name" in city_json:
-                new_city = City(**city_json)
-                new_city.state_id = state_id
+            print(city_json)
+            print(state_id)
+            if city_json.get("name") is None:
+                return jsonify({"error": "Missing name"}), 400
+            else:
+                new_city = {}
+                new_city = City(state_id=state_id, name=city_json.get("name", None))
                 new_city.save()
                 return jsonify(new_city.to_dict()), 201
-            else:
-                return jsonify({"error": "Missing name"}), 400
         else:
             return jsonify({"error": "Not a JSON"}), 400
     else:
