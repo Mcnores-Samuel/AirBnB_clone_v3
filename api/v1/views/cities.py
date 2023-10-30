@@ -67,7 +67,8 @@ def create_city_obj(state_id=None):
                 return jsonify({"error": "Missing name"}), 400
             else:
                 new_city = {}
-                new_city = City(state_id=state_id, name=city_json.get("name", None))
+                new_city = City(state_id=state_id,
+                                name=city_json.get("name", None))
                 new_city.save()
                 return jsonify(new_city.to_dict()), 201
         else:
