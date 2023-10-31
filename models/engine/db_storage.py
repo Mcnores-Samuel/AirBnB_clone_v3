@@ -87,9 +87,8 @@ class DBStorage:
         or None if not found
         """
         if cls and id:
-            data = self.all(cls)
-            key = "{}.{}".format(cls.__name__, id)
-            return data.get(key)
+            data = self.__session.query(cls).filter(cls.id == id).first()
+            return data
         return None
 
     def count(self, cls=None):

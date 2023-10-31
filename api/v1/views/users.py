@@ -59,7 +59,7 @@ def create_user_obj():
         return jsonify({"error": "Missing password"}), 400
     user = User(**request.get_json())
     user.save()
-    return jsonify(user.to_dict()), 201
+    return jsonify(user.to_json()), 201
 
 
 @app_views.route('/users/<user_id>', methods=['PUT'], strict_slashes=False)
@@ -75,5 +75,5 @@ def update_user_obj(user_id=None):
                     if key not in ['id', 'email', 'created_at', 'updated_at']:
                         setattr(user, key, value)
                 user.save()
-                return jsonify(user.to_dict()), 200
+                return jsonify(user.to_json()), 200
     return jsonify({"error": "Not found"}), 404
