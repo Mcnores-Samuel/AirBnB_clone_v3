@@ -45,6 +45,7 @@ class BaseModel:
         else:
             self.id = str(uuid4())
             self.created_at = datetime.utcnow()
+            self.updated_at = datetime.utcnow()
 
     def __set_attributes(self, attr_dict):
         """
@@ -113,9 +114,7 @@ class BaseModel:
             for k, v in self.__dict__.items()
         }
         bm_dict.pop('_sa_instance_state', None)
-        bm_dict.update({
-            '__class__': obj_class
-            })
+        bm_dict.update({'__class__': obj_class})
         if not saving_file_storage and obj_class == 'User':
             bm_dict.pop('password', None)
         return(bm_dict)

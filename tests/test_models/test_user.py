@@ -65,7 +65,7 @@ class TestUser(unittest.TestCase):
         self.assertIsInstance(user, BaseModel)
         self.assertTrue(hasattr(user, "id"))
         self.assertTrue(hasattr(user, "created_at"))
-        self.assertTrue(hasattr(user, "updated_at"))
+        self.assertIn('updated_at', user)
 
     def test_email_attr(self):
         """Test that User has attr email, and it's an empty string"""
@@ -106,22 +106,23 @@ class TestUser(unittest.TestCase):
     def test_to_dict_creates_dict(self):
         """test to_dict method creates a dictionary with proper attrs"""
         u = User()
-        new_d = u.to_dict()
+        new_d = u.to_json(saving_file_storage=True)
         self.assertEqual(type(new_d), dict)
         self.assertFalse("_sa_instance_state" in new_d)
         for attr in u.__dict__:
-            if attr is not "_sa_instance_state":
+            if attr != "_sa_instance_state":
                 self.assertTrue(attr in new_d)
         self.assertTrue("__class__" in new_d)
 
     def test_to_dict_values(self):
         """test that values in dict returned from to_dict are correct"""
-        t_format = "%Y-%m-%dT%H:%M:%S.%f"
+        t_format = "%Y-%m-%d %H:%M:%S.%f"
         u = User()
-        new_d = u.to_dict()
+        new_d = u.to_json(saving_file_storage=True)
         self.assertEqual(new_d["__class__"], "User")
         self.assertEqual(type(new_d["created_at"]), str)
         self.assertEqual(type(new_d["updated_at"]), str)
+        self.assertIn('updated_at', new_d)
         self.assertEqual(new_d["created_at"], u.created_at.strftime(t_format))
         self.assertEqual(new_d["updated_at"], u.updated_at.strftime(t_format))
 
@@ -132,3 +133,6 @@ class TestUser(unittest.TestCase):
         model_dict.pop('_sa_instance_state', None)
         string = "[User] ({}) {}".format(user.id, model_dict)
         self.assertEqual(string, str(user))
+
+if __name__ == '__main__':
+    unittest.main()

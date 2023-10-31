@@ -115,7 +115,7 @@ class TestBaseModel(unittest.TestCase):
         my_model = BaseModel()
         my_model.name = "Holberton"
         my_model.my_number = 89
-        d = my_model.to_dict()
+        d = my_model.to_json()
         expected_attrs = ["id",
                           "created_at",
                           "updated_at",
@@ -129,9 +129,9 @@ class TestBaseModel(unittest.TestCase):
 
     def test_to_dict_values(self):
         """test that values in dict returned from to_dict are correct"""
-        t_format = "%Y-%m-%dT%H:%M:%S.%f"
+        t_format = "%Y-%m-%d %H:%M:%S.%f"
         bm = BaseModel()
-        new_d = bm.to_dict()
+        new_d = bm.to_json()
         self.assertEqual(new_d["__class__"], "BaseModel")
         self.assertEqual(type(new_d["created_at"]), str)
         self.assertEqual(type(new_d["updated_at"]), str)

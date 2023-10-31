@@ -65,7 +65,7 @@ class TestState(unittest.TestCase):
         self.assertIsInstance(state, BaseModel)
         self.assertTrue(hasattr(state, "id"))
         self.assertTrue(hasattr(state, "created_at"))
-        self.assertTrue(hasattr(state, "updated_at"))
+        self.assertIn('updated_at', state)
 
     def test_name_attr(self):
         """Test that State has attribute name, and it's as an empty string"""
@@ -79,19 +79,19 @@ class TestState(unittest.TestCase):
     def test_to_dict_creates_dict(self):
         """test to_dict method creates a dictionary with proper attrs"""
         s = State()
-        new_d = s.to_dict()
+        new_d = s.to_json()
         self.assertEqual(type(new_d), dict)
         self.assertFalse("_sa_instance_state" in new_d)
         for attr in s.__dict__:
-            if attr is not "_sa_instance_state":
+            if attr != "_sa_instance_state":
                 self.assertTrue(attr in new_d)
         self.assertTrue("__class__" in new_d)
 
     def test_to_dict_values(self):
         """test that values in dict returned from to_dict are correct"""
-        t_format = "%Y-%m-%dT%H:%M:%S.%f"
+        t_format = "%Y-%m-%d %H:%M:%S.%f"
         s = State()
-        new_d = s.to_dict()
+        new_d = s.to_json()
         self.assertEqual(new_d["__class__"], "State")
         self.assertEqual(type(new_d["created_at"]), str)
         self.assertEqual(type(new_d["updated_at"]), str)
