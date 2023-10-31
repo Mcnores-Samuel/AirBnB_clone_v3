@@ -13,11 +13,11 @@ from api.v1.views import app_views
 from flask import jsonify
 from models import storage
 from models.city import City
-from flask import request
+from flask import request, make_response
 
 
-@app_views.route('/states/<state_id>/cities')
-@app_views.route('/cities/<city_id>', methods=['GET'])
+@app_views.route('/states/<state_id>/cities', methods=['GET'], strict_slashes=False)
+@app_views.route('/cities/<city_id>', methods=['GET'], strict_slashes=False)
 def all_city_objs(state_id=None, city_id=None):
     """ Returns a JSON response to an HTTP request"""
     cities_list = []
@@ -25,18 +25,18 @@ def all_city_objs(state_id=None, city_id=None):
         cities = storage.all(City)
         for city in cities.values():
             if city.id == city_id:
-                cities_list.append(city.to_dict())
+                cities_list.append(city.to_json())
                 break
 
     elif state_id:
         cities = storage.all(City)
         for city in cities.values():
             if city.state_id == state_id:
-                cities_list.append(city.to_dict())
+                cities_list.append(city.to_json())
     else:
         cities = storage.all(City)
         for city in cities.values():
-            cities_list.append(city.to_dict())
+            cities_list.append(city.to_json())
     if cities_list == []:
         return jsonify({"error": "Not found"}), 404
     return jsonify(cities_list)
@@ -46,12 +46,11 @@ def all_city_objs(state_id=None, city_id=None):
 def delete_city_obj(city_id=None):
     """ Deletes a city object for a given city id"""
     if city_id:
-        cities = storage.all(City)
-        for city in cities.values():
-            if city.id == city_id:
-                storage.delete(city)
-                storage.save()
-                return jsonify({}), 200
+        cities = storage.get(City, city_id)
+        if cities:
+            storage.delete(cities)
+            storage.save()
+            return jsonify({}), 200
     return jsonify({"error": "Not found"}), 404
 
 
@@ -61,8 +60,6 @@ def create_city_obj(state_id=None):
     if state_id:
         if request.is_json:
             city_json = request.get_json()
-            print(city_json)
-            print(state_id)
             if city_json.get("name") is None:
                 return jsonify({"error": "Missing name"}), 400
             else:
