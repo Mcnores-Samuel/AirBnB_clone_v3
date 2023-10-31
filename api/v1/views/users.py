@@ -15,8 +15,8 @@ from models.user import User
 from flask import request
 
 
-@app_views.route('/users', methods=['GET'])
-@app_views.route('/users/<user_id>', methods=['GET'])
+@app_views.route('/users', methods=['GET'], strict_slashes=False)
+@app_views.route('/users/<user_id>', methods=['GET'], strict_slashes=False)
 def all_users_objs(user_id=None):
     """ Returns a JSON response to an HTTP request"""
     users = []
@@ -35,7 +35,7 @@ def all_users_objs(user_id=None):
     return jsonify(users)
 
 
-@app_views.route('/users/<user_id>', methods=['DELETE'])
+@app_views.route('/users/<user_id>', methods=['DELETE'], strict_slashes=False)
 def delete_user_obj(user_id=None):
     """ Deletes a user object for a given user id"""
     if user_id:
@@ -48,7 +48,7 @@ def delete_user_obj(user_id=None):
     return jsonify({"error": "Not found"}), 404
 
 
-@app_views.route('/users', methods=['POST'])
+@app_views.route('/users', methods=['POST'], strict_slashes=False)
 def create_user_obj():
     """ Creates a user object and returns a JSON response to an HTTP request"""
     if not request.get_json():
@@ -62,7 +62,7 @@ def create_user_obj():
     return jsonify(user.to_dict()), 201
 
 
-@app_views.route('/users/<user_id>', methods=['PUT'])
+@app_views.route('/users/<user_id>', methods=['PUT'], strict_slashes=False)
 def update_user_obj(user_id=None):
     """ Updates a user object for a given user id"""
     if user_id:

@@ -13,11 +13,11 @@ from api.v1.views import app_views
 from flask import jsonify
 from models import storage
 from models.state import State
-from flask import request
+from flask import request, abort
 
 
-@app_views.route('/states')
-@app_views.route('/states/<state_id>', methods=['GET'])
+@app_views.route('/states', methods=['GET'], strict_slashes=False)
+@app_views.route('/states/<state_id>', methods=['GET'], strict_slashes=False)
 def all_state_objs(state_id=None):
     """ Returns a JSON response to an HTTP request"""
     states_list = []
@@ -25,30 +25,29 @@ def all_state_objs(state_id=None):
         states = storage.all(State)
         for state in states.values():
             if state.id == state_id:
-                states_list.append(state.to_dict())
+                states_list.append(state.to_json())
                 break
     else:
         states = storage.all(State)
         for state in states.values():
-            states_list.append(state.to_dict())
+            states_list.append(state.to_json())
     if states_list == []:
         return jsonify({"error": "Not found"}), 404
     return jsonify(states_list)
 
 
-@app_views.route('/states/<state_id>', methods=['DELETE'])
-def delete_state_obj(state_id=None):
+@app_views.route('/states/<state_id>', methods=['DELETE'], strict_slashes=False)
+def delete_state_obj(state_id):
     """ Deletes a state object for a given state id"""
-    states = storage.all(State)
-    for state in states.values():
-        if state.id == state_id:
-            storage.delete(state)
-            storage.save()
-            return jsonify({}), 200
-    return jsonify({"error": "Not found"}), 404
+    state = storage.get(State, state_id)
+    if not state:
+        abort(404, "Not found")
+    storage.delete(state)
+    storage.save()
+    return jsonify({}), 200
 
 
-@app_views.route('/states', methods=['POST'])
+@app_views.route('/states', methods=['POST'], strict_slashes=False)
 def create_state_obj():
     """ Creates a state object"""
     if not request.get_json():
@@ -57,10 +56,11 @@ def create_state_obj():
         return jsonify({"error": "Missing name"}), 400
     state = State(**request.get_json())
     state.save()
-    return jsonify(state.to_dict()), 201
+    print(state.to_json())
+    return jsonify(state.to_json()), 201
 
 
-@app_views.route('/states/<state_id>', methods=['PUT'])
+@app_views.route('/states/<state_id>', methods=['PUT'], strict_slashes=False)
 def update_state_obj(state_id=None):
     """ Updates a state object for a given state id"""
     if not request.get_json():
@@ -72,5 +72,5 @@ def update_state_obj(state_id=None):
                 if key not in ['id', 'created_at', 'updated_at']:
                     setattr(state, key, value)
             state.save()
-            return jsonify(state.to_dict()), 200
+            return jsonify(state.to_json()), 200
     return jsonify({"error": "Not found"}), 404
