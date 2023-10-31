@@ -57,7 +57,9 @@ def delete_place_obj(place_id=None):
 
 @app_views.route('/cities/<city_id>/places', methods=['POST'])
 def create_place_obj(city_id=None):
-    """ Creates a place object and returns a JSON response to an HTTP request"""
+    """ Creates a place object and returns a JSON
+    response to an HTTP request
+    """
     if not request.get_json():
         return jsonify({"error": "Not a JSON"}), 400
     if 'user_id' not in request.get_json():

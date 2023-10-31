@@ -79,9 +79,11 @@ class DBStorage:
         """Returns the object based on the class and its ID,
         or None if not found
         """
-        data = self.all(cls)
-        key = "{}.{}".format(cls.__name__, id)
-        return data[key]
+        if cls and id:
+            data = self.all(cls)
+            key = "{}.{}".format(cls.__name__, id)
+            return data.get(key)
+        return None
 
     def count(self, cls=None):
         """Returns the number of objects in storage matching the
