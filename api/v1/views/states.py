@@ -57,7 +57,6 @@ def create_state_obj():
         return jsonify({"error": "Missing name"}), 400
     state = State(**request.get_json())
     state.save()
-    print(state.to_json())
     return jsonify(state.to_json()), 201
 
 

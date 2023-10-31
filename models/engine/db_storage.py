@@ -16,6 +16,10 @@ import sqlalchemy
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 
+classes = {'BaseModel': BaseModel, 'User': User, 'Place': Place,
+           'State': State, 'City': City, 'Amenity': Amenity,
+           'Review': Review}
+
 
 class DBStorage:
     """interaacts with the MySQL database"""
@@ -86,6 +90,8 @@ class DBStorage:
         """Returns the object based on the class and its ID,
         or None if not found
         """
+        if cls not in classes.values():
+            return None
         if cls and id:
             data = self.__session.query(cls).filter(cls.id == id).first()
             return data
