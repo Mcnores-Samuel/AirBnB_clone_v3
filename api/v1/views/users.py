@@ -21,11 +21,12 @@ def all_users_objs(user_id=None):
     """ Returns a JSON response to an HTTP request"""
     users = []
     if user_id:
-        users_list = storage.all(User)
-        for user in users_list.values():
-            if user.id == user_id:
-                users.append(user.to_dict())
-                break
+        user = storage.get(User, user_id)
+        if user:
+            users.append(user.to_dict())
+            return jsonify(users), 200
+        else:
+            return jsonify({"error": "Not found"}), 404
     else:
         users_list = storage.all(User)
         for user in users_list.values():
@@ -39,12 +40,10 @@ def all_users_objs(user_id=None):
 def delete_user_obj(user_id=None):
     """ Deletes a user object for a given user id"""
     if user_id:
-        users = storage.all(User)
-        for user in users.values():
-            if user.id == user_id:
-                storage.delete(user)
-                storage.save()
-                return jsonify({}), 200
+        user = storage.get(User, user_id)
+        storage.delete(user)
+        storage.save()
+        return jsonify({}), 200
     return jsonify({"error": "Not found"}), 404
 
 
@@ -59,21 +58,21 @@ def create_user_obj():
         return jsonify({"error": "Missing password"}), 400
     user = User(**request.get_json())
     user.save()
-    return jsonify(user.to_json()), 201
+    return jsonify(user.to_dict()), 201
 
 
 @app_views.route('/users/<user_id>', methods=['PUT'], strict_slashes=False)
 def update_user_obj(user_id=None):
     """ Updates a user object for a given user id"""
     if user_id:
-        users = storage.all(User)
-        for user in users.values():
-            if user.id == user_id:
-                if not request.get_json():
-                    return jsonify({"error": "Not a JSON"}), 400
-                for key, value in request.get_json().items():
-                    if key not in ['id', 'email', 'created_at', 'updated_at']:
-                        setattr(user, key, value)
-                user.save()
-                return jsonify(user.to_json()), 200
+        user = storage.get(User, user_id)
+        if not user:
+            return jsonify({"error": "Not found"}), 404
+        if not request.get_json():
+            return jsonify({"error": "Not a JSON"}), 400
+        for key, value in request.get_json().items():
+            if key not in ['id', 'email', 'created_at', 'updated_at']:
+                setattr(user, key, value)
+        user.save()
+        return jsonify(user.to_dict()), 200
     return jsonify({"error": "Not found"}), 404
