@@ -118,6 +118,17 @@ class BaseModel:
         if not saving_file_storage and obj_class == 'User':
             bm_dict.pop('password', None)
         return(bm_dict)
+    
+    def to_dict(self):
+        """Returns a dictionary representation of the BaseModel object."""
+        model_dict = {}
+        model_dict["__class__"] = self.__class__.__name__
+        for key, value in self.__dict__.items():
+            if key == "created_at" or key == "updated_at":
+                value = value.isoformat()
+            model_dict[key] = value
+        model_dict.pop('_sa_instance_state', None)
+        return (model_dict)
 
     def __str__(self):
         """

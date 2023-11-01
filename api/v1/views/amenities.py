@@ -14,27 +14,27 @@ from flask import jsonify
 from models import storage
 from models.amenity import Amenity
 from flask import request
+from models.amenity import Amenity
 
 
-@app_views.route('/amenities', methods=['GET'])
-@app_views.route('/amenities/<amenity_id>', methods=['GET'])
+@app_views.route('/amenities', methods=['GET'], strict_slashes=False)
+@app_views.route('/amenities/<amenity_id>', methods=['GET'],
+                 strict_slashes=False)
 def all_amenity_objs(amenity_id=None):
     """ Returns a JSON response to an HTTP request"""
-    amenities = []
+    amenities_list = []
     if amenity_id:
-        amenities_list = storage.all(Amenity)
-        for amenity in amenities_list.values():
-            if amenity.id == amenity_id:
-                amenities.append(amenity.to_dict())
-                break
+        amenities = storage.get(Amenity, amenity_id)
+        if amenities:
+            amenities_list.append(amenities.to_dict())
+            return jsonify(amenities_list), 200
+        else:
+            return jsonify({"error": "Not found"}), 404
     else:
-        amenities_list = storage.all(Amenity)
-        for amenity in amenities_list.values():
-            amenities.append(amenity.to_dict())
-    if amenities == []:
-        return jsonify({"error": "Not found"}), 404
-    return jsonify(amenities)
-
+        amenities = storage.all(Amenity)
+        for amenity in amenities.values():
+            amenities_list.append(amenity.to_dict())
+        return jsonify(amenities_list), 200
 
 @app_views.route('/amenities/<amenity_id>', methods=['DELETE'])
 def delete_amenity_obj(amenity_id=None):
@@ -56,7 +56,7 @@ def create_amenity_obj():
     """
     if not request.get_json():
         return jsonify({"error": "Not a JSON"}), 400
-    if 'name' not in request.get_json():
+    if 'name' not in request.get_json().keys():
         return jsonify({"error": "Missing name"}), 400
     amenity = Amenity(**request.get_json())
     amenity.save()
