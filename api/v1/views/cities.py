@@ -13,33 +13,31 @@ from api.v1.views import app_views
 from flask import jsonify
 from models import storage
 from models.city import City
-from flask import request, make_response
+from models.state import State
+from flask import request
 
 
-@app_views.route('/states/<state_id>/cities', methods=['GET'], strict_slashes=False)
+@app_views.route('/states/<state_id>/cities', methods=['GET'],
+                 strict_slashes=False)
 @app_views.route('/cities/<city_id>', methods=['GET'], strict_slashes=False)
 def all_city_objs(state_id=None, city_id=None):
     """ Returns a JSON response to an HTTP request"""
     cities_list = []
+    if state_id:
+        state = storage.get(State, state_id)
+        if state:
+            for city in state.cities:
+                cities_list.append(city.to_json())
+            return jsonify(cities_list)
+        else:
+            return jsonify({"error": "Not found"}), 404
     if city_id:
-        cities = storage.all(City)
-        for city in cities.values():
-            if city.id == city_id:
-                cities_list.append(city.to_json())
-                break
-
-    elif state_id:
-        cities = storage.all(City)
-        for city in cities.values():
-            if city.state_id == state_id:
-                cities_list.append(city.to_json())
-    else:
-        cities = storage.all(City)
-        for city in cities.values():
-            cities_list.append(city.to_json())
-    if cities_list == []:
-        return jsonify({"error": "Not found"}), 404
-    return jsonify(cities_list)
+        city = storage.get(City, city_id)
+        if city:
+            return jsonify(city.to_json())
+        else:
+            return jsonify({"error": "Not found"}), 404
+    return jsonify({"error": "Not found"}), 404
 
 
 @app_views.route('/cities/<city_id>', methods=['DELETE'])
@@ -67,7 +65,7 @@ def create_city_obj(state_id=None):
                 new_city = City(state_id=state_id,
                                 name=city_json.get("name", None))
                 new_city.save()
-                return jsonify(new_city.to_dict()), 201
+                return jsonify(new_city.to_json()), 201
         else:
             return jsonify({"error": "Not a JSON"}), 400
     else:
@@ -87,7 +85,7 @@ def update_city_obj(city_id=None):
                         if key not in ["id", "created_at", "updated_at"]:
                             setattr(city, key, value)
                     city.save()
-                    return jsonify(city.to_dict()), 200
+                    return jsonify(city.to_json()), 200
             return jsonify({"error": "Not found"}), 404
         else:
             return jsonify({"error": "Not a JSON"}), 400
