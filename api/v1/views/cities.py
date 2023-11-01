@@ -27,14 +27,14 @@ def all_city_objs(state_id=None, city_id=None):
         state = storage.get(State, state_id)
         if state:
             for city in state.cities:
-                cities_list.append(city.to_json())
+                cities_list.append(city.to_dict())
             return jsonify(cities_list)
         else:
             return jsonify({"error": "Not found"}), 404
     if city_id:
         city = storage.get(City, city_id)
         if city:
-            return jsonify(city.to_json())
+            return jsonify(city.to_dict())
         else:
             return jsonify({"error": "Not found"}), 404
     return jsonify({"error": "Not found"}), 404
@@ -65,7 +65,7 @@ def create_city_obj(state_id=None):
                 new_city = City(state_id=state_id,
                                 name=city_json.get("name", None))
                 new_city.save()
-                return jsonify(new_city.to_json()), 201
+                return jsonify(new_city.to_dict()), 201
         else:
             return jsonify({"error": "Not a JSON"}), 400
     else:
@@ -85,7 +85,7 @@ def update_city_obj(city_id=None):
                         if key not in ["id", "created_at", "updated_at"]:
                             setattr(city, key, value)
                     city.save()
-                    return jsonify(city.to_json()), 200
+                    return jsonify(city.to_dict()), 200
             return jsonify({"error": "Not found"}), 404
         else:
             return jsonify({"error": "Not a JSON"}), 400

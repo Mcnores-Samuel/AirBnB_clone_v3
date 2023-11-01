@@ -25,7 +25,7 @@ def all_place_objs(city_id=None, place_id=None):
     if place_id:
         place = storage.get(Place, place_id)
         if place:
-            return jsonify(place.to_json())
+            return jsonify(place.to_dict())
         else:
             return jsonify({"error": "Not found"}), 404
     return jsonify({"error": "Not found"}), 404
@@ -63,7 +63,7 @@ def create_place_obj(city_id=None):
             place_json['city_id'] = city_id
             place = Place(**place_json)
             place.save()
-            return jsonify(place.to_json()), 201
+            return jsonify(place.to_dict()), 201
         else:
             return jsonify({"error": "Not a JSON"}), 400
     return jsonify({"error": "Not found"}), 404
@@ -83,5 +83,5 @@ def update_place_obj(place_id=None):
                            'updated_at']:
                 setattr(place, key, value)
         place.save()
-        return jsonify(place.to_json()), 200
+        return jsonify(place.to_dict()), 200
     return jsonify({"error": "Not found"}), 404

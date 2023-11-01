@@ -25,12 +25,12 @@ def all_state_objs(state_id=None):
         states = storage.all(State)
         for state in states.values():
             if state.id == state_id:
-                states_list.append(state.to_json())
+                states_list.append(state.to_dict())
                 break
     else:
         states = storage.all(State)
         for state in states.values():
-            states_list.append(state.to_json())
+            states_list.append(state.to_dict())
     if states_list == []:
         return jsonify({"error": "Not found"}), 404
     return jsonify(states_list)
@@ -57,7 +57,7 @@ def create_state_obj():
         return jsonify({"error": "Missing name"}), 400
     state = State(**request.get_json())
     state.save()
-    return jsonify(state.to_json()), 201
+    return jsonify(state.to_dict()), 201
 
 
 @app_views.route('/states/<state_id>', methods=['PUT'],
@@ -73,5 +73,5 @@ def update_state_obj(state_id=None):
                 if key not in ['id', 'created_at', 'updated_at']:
                     setattr(state, key, value)
             state.save()
-            return jsonify(state.to_json()), 200
+            return jsonify(state.to_dict()), 200
     return jsonify({"error": "Not found"}), 404
