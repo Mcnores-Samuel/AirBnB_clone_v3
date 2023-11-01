@@ -36,7 +36,9 @@ def all_amenity_objs(amenity_id=None):
             amenities_list.append(amenity.to_dict())
         return jsonify(amenities_list), 200
 
-@app_views.route('/amenities/<amenity_id>', methods=['DELETE'])
+
+@app_views.route('/amenities/<amenity_id>', methods=['DELETE'],
+                 strict_slashes=False)
 def delete_amenity_obj(amenity_id=None):
     """ Deletes a amenity object for a given amenity id"""
     if amenity_id:
@@ -49,7 +51,7 @@ def delete_amenity_obj(amenity_id=None):
     return jsonify({"error": "Not found"}), 404
 
 
-@app_views.route('/amenities', methods=['POST'])
+@app_views.route('/amenities', methods=['POST'], strict_slashes=False)
 def create_amenity_obj():
     """Creates a amenity object and returns a JSON
     response to an HTTP request
@@ -63,7 +65,8 @@ def create_amenity_obj():
     return jsonify(amenity.to_dict()), 201
 
 
-@app_views.route('/amenities/<amenity_id>', methods=['PUT'])
+@app_views.route('/amenities/<amenity_id>', methods=['PUT'],
+                 strict_slashes=False)
 def update_amenity_obj(amenity_id=None):
     """ Updates a amenity object for a given amenity id"""
     if amenity_id:
