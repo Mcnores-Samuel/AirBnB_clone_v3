@@ -9,7 +9,8 @@ from models.user import User
 from flask import request, abort
 
 
-@app_views.route('places/<place_id>/reviews', methods=['GET'], strict_slashes=False)
+@app_views.route('places/<place_id>/reviews', methods=['GET'],
+                 strict_slashes=False)
 @app_views.route('/reviews/<review_id>', methods=['GET'], strict_slashes=False)
 def all_review_objs(place_id=None, review_id=None):
     """ Returns a JSON response to an HTTP request"""
@@ -43,7 +44,8 @@ def delete_review_obj(review_id=None):
     return jsonify({"error": "Not found"}), 404
 
 
-@app_views.route('places/<place_id>/reviews', methods=['POST'], strict_slashes=False)
+@app_views.route('places/<place_id>/reviews', methods=['POST'],
+                 strict_slashes=False)
 def create_review_obj(place_id=None):
     """ Creates a review object and returns a JSON response
     to an HTTP request
